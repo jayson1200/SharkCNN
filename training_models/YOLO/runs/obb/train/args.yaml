@@ -1,7 +1,7 @@
 task: obb
 mode: train
 model: ../../models/yolov8x-obb.pt
-data: ../datasets/dji114/coco.yaml
+data: ../../datasets-reduced/megaset//data.yaml
 epochs: 100
 time: null
 patience: 50
