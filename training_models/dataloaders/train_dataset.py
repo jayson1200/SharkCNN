@@ -352,7 +352,7 @@ class SharkDatasetTrain(data.IterableDataset):
 
 
     def __iter__(self):
-        num_images = 10
+        num_images = 25
         pixels_per_image = 1920 * 1080
         data = np.empty((image_height * image_width * num_images, 86))
 
