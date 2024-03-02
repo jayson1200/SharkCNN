@@ -350,10 +350,14 @@ class SharkDatasetTrain(data.IterableDataset):
         
         return image_per_pixel_feats
 
+
     def __iter__(self):
-        data = np.empty((image_height * image_width * 2, 86))
-        data[:(image_height * image_width), :] = self.generate_image_features()
-        data[(image_height * image_width):(image_height * image_width * 2), :] = self.generate_image_features()
+        num_images = 10
+        pixels_per_image = 1920 * 1080
+        data = np.empty((image_height * image_width * num_images, 86))
+
+        for i in range(num_images):
+            data[(pixels_per_image * i):(pixels_per_image * (i+1)), :] = self.generate_image_features()
         
         np.random.shuffle(data)
          
