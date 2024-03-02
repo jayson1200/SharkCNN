@@ -28,7 +28,7 @@ image_height = 1080
 class SharkDatasetTrain(data.IterableDataset):
 
     def __init__(self):
-        super(SharkDataset).__init__()
+        super(SharkDatasetTrain).__init__()
         self.image_names = os.listdir(megaset_train_images_path)
         self.num_images = len(self.image_names)
         self.curr_image_ordering = np.arange(self.num_images, dtype=np.int32)
@@ -358,3 +358,5 @@ class SharkDatasetTrain(data.IterableDataset):
         np.random.shuffle(data)
          
         return iter(torch.from_numpy(data))
+
+
