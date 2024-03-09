@@ -1,0 +1,2 @@
+Current iteration: 98, Average Loss: 0.5949264754207781
+Current iteration: 99, Average Loss: 0.5956214389844258

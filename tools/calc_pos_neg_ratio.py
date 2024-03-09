@@ -29,7 +29,7 @@ for label_name in tqdm(files):
                             [box_keypoints[5], box_keypoints[6]], 
                             [box_keypoints[7], box_keypoints[8]]], dtype=np.float32)
 
-        total_area_in_boxes += cv2.contourArea(points, oriented=True)
+        total_area_in_boxes += cv2.contourArea(points, oriented=False)
 
 total_area_not_in_boxes = total_area - total_area_in_boxes
 ratio = total_area_not_in_boxes / total_area_in_boxes

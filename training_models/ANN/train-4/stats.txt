@@ -1,0 +1,3 @@
+Current iteration: 45, Average Loss: 0.27442852685078517
+Current iteration: 46, Average Loss: 0.2717382101698514
+CPU Usage: 3.8% GPU memory usage: 0% 

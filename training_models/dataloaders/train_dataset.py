@@ -172,7 +172,6 @@ class SharkDatasetTrain(data.IterableDataset):
             with open(label_path, "r") as labels_doc:
                 labels = labels_doc.read().splitlines()
         except FileNotFoundError:
-            print(f"Could not find {label_path}") 
             return False  
 
         
@@ -352,7 +351,7 @@ class SharkDatasetTrain(data.IterableDataset):
 
 
     def __iter__(self):
-        num_images = 25
+        num_images = 20
         pixels_per_image = 1920 * 1080
         data = np.empty((image_height * image_width * num_images, 86))
 
