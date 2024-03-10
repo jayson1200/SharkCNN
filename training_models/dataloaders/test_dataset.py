@@ -310,7 +310,6 @@ class SharkDatasetTest(data.IterableDataset):
         red_stand = self.standardize(image[:, :, 2])
 
         # Creating features
-
         curr_idx = 0
 
         for y in range(image_height):
@@ -339,7 +338,7 @@ class SharkDatasetTest(data.IterableDataset):
         return image_per_pixel_feats
 
     def __iter__(self):
-        num_images = 20
+        num_images = 5
         pixels_per_image = 1920 * 1080
         data = np.empty((image_height * image_width * num_images, 86))
 
