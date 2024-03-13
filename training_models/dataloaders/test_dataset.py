@@ -29,13 +29,13 @@ image_height = 1080
 
 class SharkDatasetTest(data.IterableDataset):
 
-    def __init__(self):
+    def __init__(self, batch_size=20):
         super(SharkDatasetTest).__init__()
         self.image_names = os.listdir(megaset_test_images_path)
         self.num_images = len(self.image_names)
         self.curr_image_ordering = np.arange(self.num_images, dtype=np.int32)
         self.curr_image_idx = 0
-
+        self.batch_size = batch_size
         self.reset_random_image_ord()
 
 
@@ -338,7 +338,7 @@ class SharkDatasetTest(data.IterableDataset):
         return image_per_pixel_feats
 
     def __iter__(self):
-        num_images = 5
+        num_images = self.batch_size
         pixels_per_image = 1920 * 1080
         data = np.empty((image_height * image_width * num_images, 86))
 
