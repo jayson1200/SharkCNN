@@ -120,10 +120,7 @@ class C2F(nn.Module):
         first_split = out[:, 0:self.elem_dist[0],:, :,:]
         second_split = out[:, self.elem_dist[0]:self.elem_dist[1],:, :,:]
         third_split = out[:, self.elem_dist[1]:,:, :,:]
-
-        bottle_out_1 =  self.bottleneck1(third_split)
-        bottle_out_2 = self.bottleneck2(bottle_out_1)
-
+        
         in_shape = x.shape
         in_shape[1] = self.elem_dist[2] * self.num_bottles
 
@@ -190,12 +187,12 @@ class SPPF(nn.Module):
         out2 = self.max_pool1(out1)
         out3 = self.max_pool2(out2)
         out4 = self.max_pool3(out3)
-        out5 = self.max_pool4(out4)
-        out6 = self.max_pool5(out5)
 
-        out7 = self.conv2(out6)
+        concat_out = torch.cat((out1, out2, out3, out4), dim=1)
+        
+        out5 = self.conv2(concat_out)
 
-        return out7
+        return out5
 
  
 class Detect_Box(nn.Module):
@@ -273,3 +270,24 @@ class Detect_Class(nn.Module):
         x = self.conv_class_final(x)
         
         return x
+
+class Detect(nn.Module):
+
+    def __init__(self, in_channels, boxes_per_cell, num_frames):
+        
+        super().__init__()
+        self.detect_box = Detect_Box(in_channels=in_channels, 
+                                     boxes_per_cell=boxes_per_cell, 
+                                     num_frames=num_frames)
+        
+        self.detect_class = Detect_Class(in_channels=in_channels, 
+                                       boxes_per_cell=boxes_per_cell, 
+                                       num_frames=num_frames)
+        
+
+    def forward(self, x):
+        
+        box_out = self.detect_box(x)
+        class_out = self.detect_class(x)
+
+        return box_out, class_out
