@@ -132,34 +132,10 @@ class Detect_Class(nn.Module):
 class BabyYolo(nn.Module):
 
     def __init__(self, num_frames, boxes_per_cell):
-        super().__init__()
-        self.conv1 = Conv(kernel_size=3, in_channels=3, out_channels=42, stride=4, padding=1)
-
-        self.conv2 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f1 = C2F(in_channels=42)
-
-        self.conv3 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f2 = C2F(in_channels=42)
-
-        self.conv4 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f3 = C2F(in_channels=42)
-
-        self.conv5 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f4 = C2F(in_channels=42)
-
-        self.conv6 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f5 = C2F(in_channels=42)
-
-        self.conv7 = Conv(kernel_size=3, in_channels=42, out_channels=42, stride=4, padding=1)
-        self.c2f6 = C2F(in_channels=42)
-        
-        self.detect_box = Detect_Box(42, 1, 6)
-        self.detect_class = Detect_Class(42, 1, 6)
-
+        pass
 
     def forward(self, x):
-        self.con
-
+        pass
  
 def distrib_elems(num_elements):
     base, remainder = divmod(num_elements, 3)
