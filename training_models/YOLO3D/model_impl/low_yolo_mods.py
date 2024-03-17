@@ -227,6 +227,7 @@ class Detect_Box(nn.Module):
     
     def forward(self, x):
         x = self.lin_comb_conv(x)
+        x = torch.squeeze(x, dim=2)
         x = self.conv_box1(x)
         x = self.conv_box2(x)
         x = self.conv_box_final(x)
@@ -265,6 +266,7 @@ class Detect_Class(nn.Module):
     
     def forward(self, x):
         x = self.lin_comb_conv(x)
+        x = torch.squeeze(x, dim=2)
         x = self.conv_class1(x)
         x = self.conv_class2(x)
         x = self.conv_class_final(x)
