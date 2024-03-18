@@ -14,7 +14,7 @@ class YOLO3D(nn.Module):
     def __init__(self, num_frames, num_features):
         super().__init__()
 
-        self.num_frames = num_frames
+        self.num_frames = 4
         self.num_features = num_features
 
         self.x_low_shape = (1, 128, 4, 135, 240)
