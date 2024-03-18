@@ -14,12 +14,15 @@ class YOLO3D(nn.Module):
     def __init__(self, num_frames, num_features):
         super().__init__()
 
-        self.num_frames = 4
+        self.num_depth_low = 7
+        self.num_depth_mid = 4
+        self.num_depth_high = 2
+        
         self.num_features = num_features
 
-        self.x_low_shape = (1, 128, 4, 135, 240)
-        self.x_mid_shape = (1, 384, 2, 68, 120)
-        self.x_high_shape = (1, 576, 1, 34, 60)
+        self.x_low_shape = (1, 64, self.num_depth_low, 135, 240)
+        self.x_mid_shape = (1, 128, self.num_depth_mid, 68, 120)
+        self.x_high_shape = (1, 256, self.num_depth_high, 34, 60)
 
         self.backbone = highmods.Backbone(in_channels=self.num_features)
 
@@ -33,15 +36,15 @@ class YOLO3D(nn.Module):
 
         self.detect_low = lowmods.Detect(in_channels=low_in_channels,
                                          boxes_per_cell=1,
-                                         num_frames=self.num_frames)
+                                         num_frames=self.num_depth_low)
 
         self.detect_mid = lowmods.Detect(in_channels=mid_in_channels,
                                          boxes_per_cell=1,
-                                         num_frames=self.num_frames)
+                                         num_frames=self.num_depth_mid)
 
         self.detect_high = lowmods.Detect(in_channels=high_in_channels,
                                          boxes_per_cell=1,
-                                         num_frames=self.num_frames)
+                                         num_frames=self.num_depth_high)
 
 
     def forward(self, x):

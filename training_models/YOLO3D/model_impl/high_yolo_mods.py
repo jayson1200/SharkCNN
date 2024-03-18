@@ -17,45 +17,45 @@ class Backbone(nn.Module):
         
         self.conv2 = mods.Conv(kernel_size=3,
                                in_channels=in_channels,
-                               out_channels=96,
+                               out_channels=32,
                                stride=2,
                                padding=1)
          
-        self.c2f1 = mods.C2F(in_channels=96,
+        self.c2f1 = mods.C2F(in_channels=32,
                              shortcut=True,
                              num_bottlenecks=2)
         
         self.conv3 = mods.Conv(kernel_size=3,
-                        in_channels=96,
-                        out_channels=128,
+                        in_channels=32,
+                        out_channels=64,
                         stride=2,
                         padding=1)
         
-        self.c2f2_out = mods.C2F(in_channels=128,
+        self.c2f2_out = mods.C2F(in_channels=64,
                                  shortcut=True,
                                  num_bottlenecks=4)
         
         self.conv4 = mods.Conv(kernel_size=3,
-                               in_channels=128,
-                               out_channels=384,
+                               in_channels=64,
+                               out_channels=128,
                                stride=2,
                                padding=1)
         
-        self.c2f3_out = mods.C2F(in_channels=384,
+        self.c2f3_out = mods.C2F(in_channels=128,
                                  shortcut=True,
                                  num_bottlenecks=4)
         
         self.conv5 = mods.Conv(kernel_size=3,
-                               in_channels=384,
-                               out_channels=576,
+                               in_channels=128,
+                               out_channels=256,
                                stride=2,
                                padding=1)
         
-        self.c2f4 = mods.C2F(in_channels=576,
+        self.c2f4 = mods.C2F(in_channels=256,
                                  shortcut=True,
                                  num_bottlenecks=2)
         
-        self.sppf1 = mods.SPPF(in_channels=576,
+        self.sppf1 = mods.SPPF(in_channels=256,
                                kernel_size=5)
 
     def forward(self, x):

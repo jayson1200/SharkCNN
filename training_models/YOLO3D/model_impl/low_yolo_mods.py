@@ -132,7 +132,7 @@ class C2F(nn.Module):
         in_shape = list(x.shape)
         in_shape[1] = self.elem_dist[2] * self.num_bottles
 
-        bottle_out = torch.empty(tuple(in_shape))
+        bottle_out = torch.empty(tuple(in_shape), device=first_split.get_device())
         
         curr_bottle_out_start = 0
         curr_bottle_out_end = self.elem_dist[2]
@@ -295,7 +295,6 @@ class Detect(nn.Module):
         
 
     def forward(self, x):
-        print(x.shape)
         box_out = self.detect_box(x)
         class_out = self.detect_class(x)
 
