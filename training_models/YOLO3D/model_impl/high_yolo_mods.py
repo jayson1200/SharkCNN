@@ -159,16 +159,3 @@ class PAN(nn.Module):
         x_low, x_mid, x_high = self.pan_two(x_low, x_mid, x_high)
 
         return x_low, x_mid, x_high
-
-
-class PAN(nn.Module):
-    def __init__(self, x_low_shape, x_mid_shape, x_high_shape):
-        super().__init__()
-
-
-    def forward(self, x_low, x_mid, x_high):
-
-        x_low, x_mid, x_high = self.pan_one(x_low, x_mid, x_high)
-        x_low, x_mid, x_high = self.pan_two(x_low, x_mid, x_high)
-
-        return x_low, x_mid, x_high
