@@ -17,45 +17,45 @@ class Backbone(nn.Module):
         
         self.conv2 = mods.Conv(kernel_size=3,
                                in_channels=in_channels,
-                               out_channels=in_channels,
+                               out_channels=96,
                                stride=2,
                                padding=1)
-        
-        self.c2f1 = mods.C2F(in_channels=in_channels,
+         
+        self.c2f1 = mods.C2F(in_channels=96,
                              shortcut=True,
                              num_bottlenecks=2)
         
         self.conv3 = mods.Conv(kernel_size=3,
-                        in_channels=in_channels,
-                        out_channels=in_channels,
+                        in_channels=96,
+                        out_channels=128,
                         stride=2,
                         padding=1)
         
-        self.c2f2_out = mods.C2F(in_channels=in_channels,
+        self.c2f2_out = mods.C2F(in_channels=128,
                                  shortcut=True,
                                  num_bottlenecks=4)
         
         self.conv4 = mods.Conv(kernel_size=3,
-                               in_channels=in_channels,
-                               out_channels=in_channels,
+                               in_channels=128,
+                               out_channels=384,
                                stride=2,
                                padding=1)
         
-        self.c2f3_out = mods.C2F(in_channels=42,
+        self.c2f3_out = mods.C2F(in_channels=384,
                                  shortcut=True,
                                  num_bottlenecks=4)
         
         self.conv5 = mods.Conv(kernel_size=3,
-                               in_channels=in_channels,
-                               out_channels=in_channels,
+                               in_channels=384,
+                               out_channels=576,
                                stride=2,
                                padding=1)
         
-        self.c2f4 = mods.C2F(in_channels=in_channels,
+        self.c2f4 = mods.C2F(in_channels=576,
                                  shortcut=True,
                                  num_bottlenecks=2)
         
-        self.sppf1 = mods.SPPF(in_channels=in_channels,
+        self.sppf1 = mods.SPPF(in_channels=576,
                                kernel_size=5)
 
     def forward(self, x):
@@ -76,13 +76,16 @@ class Backbone(nn.Module):
 
 class PANONE(nn.Module):
 
-    def __init__(self, x_low_shape, x_mid_shape):
+    def __init__(self, x_low_shape, x_mid_shape, x_high_shape):
         super().__init__()
-        self.upsample_high_mid = nn.Upsample(size=x_mid_shape)
-        self.c2f1_out = mods.C2F(in_channels=x_mid_shape[1] * 2, shortcut=False, num_bottlenecks=2)
+        self.in_channels_high_mid = x_high_shape[1] + x_mid_shape[1]
+        self.in_channels_mid_low = self.in_channels_high_mid + x_low_shape[1]
 
-        self.upsample_mid_low = nn.Upsample(size=x_low_shape)
-        self.c2f2_out = mods.C2F(in_channels=x_low_shape[1] * 2, shortcut=False, num_bottlenecks=2)
+        self.upsample_high_mid = nn.Upsample(size=x_mid_shape[2:])
+        self.c2f1_out = mods.C2F(in_channels=self.in_channels_high_mid, shortcut=False, num_bottlenecks=2)
+
+        self.upsample_mid_low = nn.Upsample(size=x_low_shape[2:])
+        self.c2f2_out = mods.C2F(in_channels=self.in_channels_mid_low, shortcut=False, num_bottlenecks=2)
 
     def forward(self, x_low, x_mid, x_high):
         high_mid_up = self.upsample_high_mid(x_high)
@@ -101,13 +104,17 @@ class PANTWO(nn.Module):
 
     def __init__(self, x_low_shape, x_mid_shape, x_high_shape):
         super().__init__()
+
+        self.in_channels_high_mid = x_high_shape[1] + x_mid_shape[1]
+        self.in_channels_mid_low = self.in_channels_high_mid + x_low_shape[1]
+
         self.conv1 = mods.Conv(kernel_size=3,
-                               in_channels=x_low_shape[1],
-                               out_channels=x_low_shape[1],
+                               in_channels=self.in_channels_mid_low,
+                               out_channels=self.in_channels_mid_low,
                                stride=2,
                                padding=1)
         
-        concat_1_chn_size = x_low_shape[1] + x_mid_shape[1]
+        concat_1_chn_size = self.in_channels_mid_low + self.in_channels_high_mid
         
         self.c2f1_out = mods.C2F(in_channels=concat_1_chn_size,
                                  shortcut=False,
@@ -119,7 +126,7 @@ class PANTWO(nn.Module):
                                stride=2,
                                padding=1)
         
-        concat_2_chn_size = x_high_shape[1] + x_mid_shape[1]
+        concat_2_chn_size = x_high_shape[1] + concat_1_chn_size
 
         self.c2f2_out = mods.C2F(in_channels=concat_2_chn_size,
                                  shortcut=False,
@@ -147,9 +154,10 @@ class PAN(nn.Module):
         super().__init__()
 
         self.pan_one = PANONE(x_low_shape=x_low_shape, 
+                              x_mid_shape=x_mid_shape,
                               x_high_shape=x_high_shape)
         
-        self.pan_two = PANONE(x_low_shape=x_low_shape,
+        self.pan_two = PANTWO(x_low_shape=x_low_shape,
                               x_mid_shape=x_mid_shape, 
                               x_high_shape=x_high_shape)
 

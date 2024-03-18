@@ -98,8 +98,14 @@ class C2F(nn.Module):
              shortcut,
              num_bottlenecks):
         super().__init__()
+
         self.elem_dist = self.distrib_elems(in_channels)
+
+        self.first_split_end = self.elem_dist[0]
+        self.second_split_end = self.elem_dist[0] + self.elem_dist[1]
         self.num_bottles = num_bottlenecks
+
+        self.out_channels = self.elem_dist[0] + self.elem_dist[1] + (self.num_bottles * self.elem_dist[2])
 
         self.conv1 = Conv(in_channels=in_channels, 
                           out_channels=in_channels,
@@ -107,9 +113,9 @@ class C2F(nn.Module):
                           padding=0, 
                           stride=1)
         
-        self.bottlenecks = nn.ModuleList([Bottleneck(in_channel=self.elem_dist[2], shortcut=shortcut) for _ in range(num_bottlenecks)])
+        self.bottlenecks = nn.ModuleList([Bottleneck(in_channels=self.elem_dist[2], shortcut=shortcut) for _ in range(self.num_bottles)])
 
-        self.conv2 = Conv(in_channels=in_channels, 
+        self.conv2 = Conv(in_channels=self.out_channels, 
                           out_channels=in_channels,
                           kernel_size=1, 
                           padding=0, 
@@ -117,14 +123,16 @@ class C2F(nn.Module):
 
     def forward(self, x):
         out = self.conv1(x)
-        first_split = out[:, 0:self.elem_dist[0],:, :,:]
-        second_split = out[:, self.elem_dist[0]:self.elem_dist[1],:, :,:]
-        third_split = out[:, self.elem_dist[1]:,:, :,:]
+    
+
+        first_split = out[:, 0:self.first_split_end,:, :,:]
+        second_split = out[:, self.first_split_end:self.second_split_end,:, :,:]
+        third_split = out[:, self.second_split_end:,:, :,:]
         
-        in_shape = x.shape
+        in_shape = list(x.shape)
         in_shape[1] = self.elem_dist[2] * self.num_bottles
 
-        bottle_out = torch.empty(in_shape)
+        bottle_out = torch.empty(tuple(in_shape))
         
         curr_bottle_out_start = 0
         curr_bottle_out_end = self.elem_dist[2]
@@ -134,14 +142,14 @@ class C2F(nn.Module):
             bottle_out[:, curr_bottle_out_start:curr_bottle_out_end, :, :, :] = third_split
 
             curr_bottle_out_start = curr_bottle_out_end
-            curr_bottle_out_end += curr_bottle_out_end  
+            curr_bottle_out_end += self.elem_dist[2]
 
         out = torch.cat((first_split, second_split, bottle_out), dim=1)
         out = self.conv2(out)
 
         return out
     
-    def distrib_elems(num_elements):
+    def distrib_elems(self, num_elements):
         base, remainder = divmod(num_elements, 3)
         distribution = np.array([base] * 3)
 
@@ -165,18 +173,17 @@ class SPPF(nn.Module):
         padding = int(kernel_size * 0.5)
 
         self.max_pool1 = nn.MaxPool3d(kernel_size=kernel_size,
-                                      padding=padding)
+                                      padding=padding,
+                                      stride=1)
         self.max_pool2 = nn.MaxPool3d(kernel_size=kernel_size,
-                                      padding=padding)
+                                      padding=padding,
+                                      stride=1)
         self.max_pool3 = nn.MaxPool3d(kernel_size=kernel_size,
-                                      padding=padding)
-        self.max_pool4 = nn.MaxPool3d(kernel_size=kernel_size,
-                                      padding=padding)
-        self.max_pool5 = nn.MaxPool3d(kernel_size=kernel_size,
-                                      padding=padding)
+                                      padding=padding,
+                                      stride=1)
 
         self.conv2 = Conv(kernel_size=3,
-                          in_channels=in_channels,
+                          in_channels=in_channels * 4,
                           out_channels=in_channels,
                           stride=1,
                           padding=1)
@@ -187,7 +194,7 @@ class SPPF(nn.Module):
         out2 = self.max_pool1(out1)
         out3 = self.max_pool2(out2)
         out4 = self.max_pool3(out3)
-
+        
         concat_out = torch.cat((out1, out2, out3, out4), dim=1)
         
         out5 = self.conv2(concat_out)
@@ -226,7 +233,7 @@ class Detect_Box(nn.Module):
 
     
     def forward(self, x):
-        x = self.lin_comb_conv(x)
+        # x = self.lin_comb_conv(x)
         x = torch.squeeze(x, dim=2)
         x = self.conv_box1(x)
         x = self.conv_box2(x)
@@ -265,7 +272,7 @@ class Detect_Class(nn.Module):
 
     
     def forward(self, x):
-        x = self.lin_comb_conv(x)
+        # x = self.lin_comb_conv(x)
         x = torch.squeeze(x, dim=2)
         x = self.conv_class1(x)
         x = self.conv_class2(x)
@@ -288,7 +295,7 @@ class Detect(nn.Module):
         
 
     def forward(self, x):
-        
+        print(x.shape)
         box_out = self.detect_box(x)
         class_out = self.detect_class(x)
 
