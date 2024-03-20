@@ -224,19 +224,25 @@ class Detect_Box(nn.Module):
                                 kernel_size=3, 
                                 stride=1, 
                                 padding=1)
+        
+        self.conv_box3 = Conv2D(in_channels=in_channels, 
+                                out_channels=in_channels, 
+                                kernel_size=3, 
+                                stride=2, 
+                                padding=1)
+
 
         self.conv_box_final = nn.Conv2d(in_channels=in_channels, 
-                                        out_channels=5 * boxes_per_cell, 
+                                        out_channels= 5 * boxes_per_cell, 
                                         kernel_size=1, 
                                         stride=1)
 
-
-    
     def forward(self, x):
         x = self.lin_comb_conv(x)
         x = torch.squeeze(x, dim=2)
         x = self.conv_box1(x)
         x = self.conv_box2(x)
+        x = self.conv_box3(x)
         x = self.conv_box_final(x)
 
         return x
@@ -261,8 +267,15 @@ class Detect_Class(nn.Module):
         self.conv_class2 = Conv2D(in_channels=in_channels, 
                                 out_channels=in_channels, 
                                 kernel_size=3, 
-                                stride=1, 
+                                stride=2, 
                                 padding=1)
+        
+        self.conv_class3 = Conv2D(in_channels=in_channels, 
+                                out_channels=in_channels, 
+                                kernel_size=3, 
+                                stride=1, 
+                                padding=1)       
+
     
         self.conv_class_final = nn.Conv2d(in_channels=in_channels, 
                                           out_channels = boxes_per_cell, 
@@ -276,9 +289,12 @@ class Detect_Class(nn.Module):
         x = torch.squeeze(x, dim=2)
         x = self.conv_class1(x)
         x = self.conv_class2(x)
+        x = self.conv_class3(x)
         x = self.conv_class_final(x)
         
         return x
+    
+    
 
 class Detect(nn.Module):
 

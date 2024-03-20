@@ -43,8 +43,8 @@ class YOLO3D(nn.Module):
                                          num_frames=self.num_depth_mid)
 
         self.detect_high = lowmods.Detect(in_channels=high_in_channels,
-                                         boxes_per_cell=1,
-                                         num_frames=self.num_depth_high)
+                                          boxes_per_cell=1,
+                                          num_frames=self.num_depth_high)
 
 
     def forward(self, x):
