@@ -130,7 +130,7 @@ def get_ground_truth_boxes_idx(label_path, box_output_shape):
     return box_outputs, class_outputs
 
 
-def get_ground_truth_boxes(label_path, box_output_shape):
+def get_ground_truth_boxes(label_path, box_output_shape, device):
     class_output_shape = (box_output_shape[0], 1, box_output_shape[2], box_output_shape[3])
 
     box_outputs = np.zeros(box_output_shape, dtype=np.float32)
@@ -139,7 +139,7 @@ def get_ground_truth_boxes(label_path, box_output_shape):
     coords = get_coords_from_label_file(label_path)
 
     if (coords == None):
-        return box_outputs, class_outputs
+        return torch.from_numpy(box_outputs).to(device), torch.from_numpy(class_outputs).to(device), 0
     
     total_pos = 0
     for coord in coords:
@@ -159,5 +159,5 @@ def get_ground_truth_boxes(label_path, box_output_shape):
         class_outputs[0, :, int_idxs[:, 1], int_idxs[:, 0]] = 1
 
 
-    return torch.from_numpy(box_outputs), torch.from_numpy(class_outputs), total_pos
+    return (torch.from_numpy(box_outputs).to(device), torch.from_numpy(class_outputs).to(device), total_pos)
 

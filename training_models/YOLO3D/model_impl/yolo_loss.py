@@ -26,7 +26,13 @@ class YOLO_Loss(nn.Module):
         xclass = xclass.flatten()
         xclass_hat = xclass_hat.flatten()
         
-        return 0.5 * self.bce_loss(xclass, xclass_hat) + 7.5 * bbox(xbox, xbox_hat, xclass, n_pos, xclass)
+
+        bbox_loss = bbox(pred_bboxes=xbox, target_bboxes=xbox_hat, target_scores=xclass, target_scores_sum=n_pos, fg_mask=xclass)
+        class_prob_loss = self.bce_loss(xclass, xclass_hat)
+
+        total_loss = 7.5 * bbox_loss + 0.5 * class_prob_loss
+
+        return total_loss
 
 
 def _get_covariance_matrix(boxes):

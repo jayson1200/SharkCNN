@@ -19,9 +19,12 @@ box_low_shape = (1, 5, 68, 120)
                    
 class SharkYOLODataset(Dataset):
     def __init__(self, 
-                 num_frames):
+                 num_frames,
+                 device):
         
         self.num_frames = num_frames
+
+        self.device = device
         
         self.recordings = ["dji114", "dji136", "dji206", "dji246", "dji343", "dji344", 
                            "dji345", "dji349", "dji358", "dji359", "nodriz,mar,c,laura"]
@@ -45,7 +48,7 @@ class SharkYOLODataset(Dataset):
     def generate_ground_truth(self, recording_name, out_shape):
         label_path = datasets_path + "/train/labels/" + recording_name
         
-        return utils.get_ground_truth_boxes(label_path=label_path, box_output_shape=out_shape)
+        return utils.get_ground_truth_boxes(label_path=label_path, box_output_shape=out_shape, device=self.device)
 
     def __getitem__(self, idx):
         target_frame_idx = idx + self.num_frames
@@ -76,7 +79,7 @@ class SharkYOLODataset(Dataset):
         mid = self.generate_ground_truth(img_name, box_mid_shape)
         low = self.generate_ground_truth(img_name, box_low_shape)
 
-        return exp, (high, mid, low)
+        return torch.squeeze(exp).to(device=self.device), (high, mid, low)
 
 
 
