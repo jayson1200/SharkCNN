@@ -76,7 +76,7 @@ class SharkYOLODataset(Dataset):
         mid = self.generate_ground_truth(img_name, box_mid_shape)
         low = self.generate_ground_truth(img_name, box_low_shape)
 
-        return (exp, (high, mid, low)) 
+        return exp, (high, mid, low)
 
 
 
