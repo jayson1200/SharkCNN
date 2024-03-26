@@ -5,3 +5,4 @@ training_models/YOLO/runs
 /megaset
 /test-vid
 /training_models/test_baselines/preds_labels.dat
+/training_models/YOLO3D/Train_YOLO/trained-models

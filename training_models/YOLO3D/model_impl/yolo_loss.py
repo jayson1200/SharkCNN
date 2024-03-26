@@ -13,21 +13,20 @@ import math
 class YOLO_Loss(nn.Module):
     def __init__(self):
         super().__init__()
-        self.bce_loss = nn.BCELoss()
+        self.bce_loss = nn.BCEWithLogitsLoss()
 
     """
         Example box output: torch.Size([1, 5, 68, 120]) 
         Example class prob output: torch.Size([1, 1, 68, 120])
     """
     def forward(self, xbox, xbox_hat, xclass, xclass_hat, n_pos):
-        xbox.view(-1, 5)
+        xbox = xbox.view(-1, 5)
         xbox_hat = xbox_hat.view(-1, 5)
 
         xclass = xclass.flatten()
         xclass_hat = xclass_hat.flatten()
         
-
-        bbox_loss = bbox(pred_bboxes=xbox, target_bboxes=xbox_hat, target_scores=xclass, target_scores_sum=n_pos, fg_mask=xclass)
+        bbox_loss = bbox(pred_bboxes=xbox, target_bboxes=xbox_hat, target_scores=xclass, target_scores_sum=n_pos, fg_mask=(xclass > 0.5) )
         class_prob_loss = self.bce_loss(xclass, xclass_hat)
 
         total_loss = 7.5 * bbox_loss + 0.5 * class_prob_loss
@@ -55,7 +54,7 @@ def _get_covariance_matrix(boxes):
     return a * cos2 + b * sin2, a * sin2 + b * cos2, (a - b) * cos * sin
     
 
-def probiou(obb1, obb2, CIoU=False, eps=1e-7):
+def probiou(obb1, obb2, CIoU=True, eps=1e-7):
     """
     Calculate the prob IoU between oriented bounding boxes, https://arxiv.org/pdf/2106.06072v1.pdf.
 
@@ -95,7 +94,9 @@ def probiou(obb1, obb2, CIoU=False, eps=1e-7):
 
 def bbox(pred_bboxes, target_bboxes, target_scores, target_scores_sum, fg_mask):
     """IoU loss."""
-    weight = target_scores.sum(-1)[fg_mask].unsqueeze(-1)
     iou = probiou(pred_bboxes[fg_mask], target_bboxes[fg_mask])
-    
-    return ((1.0 - iou) * weight).sum() / target_scores_sum
+
+    # weight = target_scores.sum(-1)[fg_mask].unsqueeze(-1) 
+    # return ((1.0 - iou) * weight).sum() / target_scores_sum
+
+    return ((1.0 - iou) * target_scores).sum() / target_scores_sum

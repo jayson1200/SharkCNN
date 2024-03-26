@@ -4,6 +4,7 @@ sys.path.append("/home/meribejayson/Desktop/Projects/SharkCNN/training_models/YO
 
 import utils
 from torch.utils.data import Dataset
+from IPython.display import clear_output
 
 import os
 import cv2
@@ -56,19 +57,24 @@ class SharkYOLODataset(Dataset):
         target_record = ""
 
         frames = []
-
         for len, name in zip(self.recordings_len, self.recordings):
             if(len >= target_frame_idx):
                 frame_end_idx = target_frame_idx - 1
                 target_record = name
                 break
             
-            target_frame_idx -= len 
+            target_frame_idx -= (len - self.num_frames)
         
         for i in range(self.num_frames):
             img_name = f"{frame_end_idx - i}.jpg"
             img_path = datasets_path + target_record +  "/train/images/" + img_name
-            img = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
+            img = cv2.imread(img_path)
+
+            if img is None:
+                img = np.zeros((1080, 1920, 3))
+            else: 
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
             img = img.astype(np.float32)
             img = torch.from_numpy(np.expand_dims(np.expand_dims(img.transpose(2,0,1), axis=0), axis=2))
             frames.append(img)

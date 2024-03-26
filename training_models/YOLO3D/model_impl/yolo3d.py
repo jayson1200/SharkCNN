@@ -14,9 +14,9 @@ class YOLO3D(nn.Module):
     def __init__(self, num_frames, num_features):
         super().__init__()
 
-        self.num_depth_low = 7
-        self.num_depth_mid = 4
-        self.num_depth_high = 2
+        self.num_depth_low = 4
+        self.num_depth_mid = 2
+        self.num_depth_high = 1
         
         self.num_features = num_features
 
