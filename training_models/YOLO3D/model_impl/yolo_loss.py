@@ -29,9 +29,7 @@ class YOLO_Loss(nn.Module):
         bbox_loss = bbox(pred_bboxes=xbox, target_bboxes=xbox_hat, target_scores=xclass, target_scores_sum=n_pos, fg_mask=(xclass > 0.5) )
         class_prob_loss = self.bce_loss(xclass, xclass_hat)
 
-        total_loss = 7.5 * bbox_loss + 0.5 * class_prob_loss
-
-        return total_loss
+        return (bbox_loss, class_prob_loss)
 
 
 def _get_covariance_matrix(boxes):
@@ -95,8 +93,5 @@ def probiou(obb1, obb2, CIoU=True, eps=1e-7):
 def bbox(pred_bboxes, target_bboxes, target_scores, target_scores_sum, fg_mask):
     """IoU loss."""
     iou = probiou(pred_bboxes[fg_mask], target_bboxes[fg_mask])
-
-    # weight = target_scores.sum(-1)[fg_mask].unsqueeze(-1) 
-    # return ((1.0 - iou) * weight).sum() / target_scores_sum
 
     return ((1.0 - iou) * target_scores).sum() / target_scores_sum
