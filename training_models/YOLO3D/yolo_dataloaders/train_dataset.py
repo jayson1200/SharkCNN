@@ -52,18 +52,20 @@ class SharkYOLODataset(Dataset):
         return utils.get_ground_truth_boxes(label_path=label_path, box_output_shape=out_shape, device=self.device)
 
     def __getitem__(self, idx):
-        target_frame_idx = idx + self.num_frames
-        frame_end_idx = 0
+        idx += 1
+        curr_final_frame_idx = idx + self.num_frames
+        frame_end_idx = None
         target_record = ""
 
         frames = []
         for len, name in zip(self.recordings_len, self.recordings):
-            if(len >= target_frame_idx):
-                frame_end_idx = target_frame_idx - 1
+            if(curr_final_frame_idx <= len):
+                frame_end_idx = curr_final_frame_idx
                 target_record = name
                 break
             
-            target_frame_idx -= (len - self.num_frames)
+            idx -= len 
+            curr_final_frame_idx = idx + self.num_frames
         
         for i in range(self.num_frames):
             img_name = f"{frame_end_idx - i}.jpg"
